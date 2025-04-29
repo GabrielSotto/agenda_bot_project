@@ -3,6 +3,8 @@ import datetime
 import requests
 import json
 import unicodedata
+from dotenv import load_dotenv
+import os
 
 print("\n===== INICIANDO EJECUCIÓN DE AGENDA BOT V1.1 =====\n")
 
@@ -22,15 +24,11 @@ def convertir_fecha(fecha_str):
         except ValueError:
             return None
 
-# Cargar configuración
-try:
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config = json.load(f)
-    token = config['token']
-    chat_id = config['chat_id']
-except Exception as e:
-    print(f"ERROR cargando config.json: {e}")
-    exit()
+# Cargar variables de entorno
+load_dotenv()
+token = os.getenv('TOKEN')
+chat_id = os.getenv('CHAT_ID')
+
 
 # Cargar archivos
 try:
