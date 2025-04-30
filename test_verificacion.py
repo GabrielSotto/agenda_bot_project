@@ -8,10 +8,14 @@ print("\n===== INICIANDO PROTOCOLO DE VERIFICACIÓN =====\n")
 
 errores = []
 
+
 def normalizar(texto):
     texto = str(texto)
-    texto = unicodedata.normalize('NFKD', texto).encode('ascii', 'ignore').decode('utf-8')
+    texto = (
+        unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("utf-8")
+    )
     return texto.lower().strip()
+
 
 # Test 1: Verificar existencia de archivos
 archivos_necesarios = ["turnos.csv", "tareas.csv", "config.json"]
@@ -28,7 +32,9 @@ if "turnos.csv" in archivos_necesarios and os.path.exists("turnos.csv"):
         columnas_esperadas_turnos = ["dia", "turno"]
         for columna in columnas_esperadas_turnos:
             if columna not in columnas_turnos_normalizadas:
-                errores.append(f"ERROR: Falta la columna '{columna}' en turnos.csv (revisar mayúsculas, tildes o errores de escritura)")
+                errores.append(
+                    f"ERROR: Falta la columna '{columna}' en turnos.csv (revisar mayúsculas, tildes o escritura)"
+                )
     except Exception as e:
         errores.append(f"ERROR leyendo turnos.csv: {str(e)}")
 
@@ -37,10 +43,17 @@ if "tareas.csv" in archivos_necesarios and os.path.exists("tareas.csv"):
     try:
         tareas = pd.read_csv("tareas.csv", encoding="utf-8")
         columnas_tareas_normalizadas = [normalizar(col) for col in tareas.columns]
-        columnas_esperadas_tareas = ["tarea", "prioridad", "duracion horas", "categoria"]
+        columnas_esperadas_tareas = [
+            "tarea",
+            "prioridad",
+            "duracion horas",
+            "categoria",
+        ]
         for columna in columnas_esperadas_tareas:
             if columna not in columnas_tareas_normalizadas:
-                errores.append(f"ERROR: Falta la columna '{columna}' en tareas.csv (revisar mayúsculas, tildes o errores de escritura)")
+                errores.append(
+                    f"ERROR: Falta la columna '{columna}' en tareas.csv (revisar mayúsculas, tildes o escritura)"
+                )
     except Exception as e:
         errores.append(f"ERROR leyendo tareas.csv: {str(e)}")
 
@@ -57,7 +70,7 @@ if "config.json" in archivos_necesarios and os.path.exists("config.json"):
 # Test 5: Verificar formato de fecha en turnos.csv (ISO o Humano)
 if "turnos.csv" in archivos_necesarios and os.path.exists("turnos.csv"):
     try:
-        fechas = turnos["Día"] if "Día" in turnos.columns else turnos.iloc[:,0]
+        fechas = turnos["Día"] if "Día" in turnos.columns else turnos.iloc[:, 0]
         for fecha in fechas:
             fecha = str(fecha)
             try:
@@ -68,7 +81,9 @@ if "turnos.csv" in archivos_necesarios and os.path.exists("turnos.csv"):
                     # Si falla, intenta como formato ISO AAAA-MM-DD
                     datetime.strptime(fecha, "%Y-%m-%d")
                 except ValueError:
-                    errores.append(f"ERROR: Fecha '{fecha}' no tiene formato válido (ni DD/MM/AAAA ni YYYY-MM-DD)")
+                    errores.append(
+                        f"ERROR: Fecha '{fecha}' no tiene formato válido (ni DD/MM/AAAA ni YYYY-MM-DD)"
+                    )
     except Exception as e:
         errores.append(f"ERROR analizando fechas en turnos.csv: {str(e)}")
 

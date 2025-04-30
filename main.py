@@ -1,18 +1,21 @@
 import pandas as pd
 import datetime
 import requests
-import json
 import unicodedata
 from dotenv import load_dotenv
 import os
 
 print("\n===== INICIANDO EJECUCIÓN DE AGENDA BOT V1.1 =====\n")
 
+
 # Función para normalizar texto
 def normalizar(texto):
     texto = str(texto)
-    texto = unicodedata.normalize('NFKD', texto).encode('ascii', 'ignore').decode('utf-8')
+    texto = (
+        unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("utf-8")
+    )
     return texto.lower().strip()
+
 
 # Función para convertir fechas humanas a ISO
 def convertir_fecha(fecha_str):
@@ -24,16 +27,17 @@ def convertir_fecha(fecha_str):
         except ValueError:
             return None
 
+
 # Cargar variables de entorno
 load_dotenv()
-token = os.getenv('TOKEN')
-chat_id = os.getenv('CHAT_ID')
+token = os.getenv("TOKEN")
+chat_id = os.getenv("CHAT_ID")
 
 
 # Cargar archivos
 try:
-    turnos = pd.read_csv('turnos.csv', encoding='utf-8')
-    tareas = pd.read_csv('tareas.csv', encoding='utf-8')
+    turnos = pd.read_csv("turnos.csv", encoding="utf-8")
+    tareas = pd.read_csv("tareas.csv", encoding="utf-8")
 except Exception as e:
     print(f"ERROR cargando archivos CSV: {e}")
     exit()
@@ -46,8 +50,8 @@ tareas.columns = [normalizar(col) for col in tareas.columns]
 hoy = datetime.date.today()
 
 # Verificar turno de hoy
-turnos['fecha_normalizada'] = turnos['dia'].apply(lambda x: convertir_fecha(x))
-turno_hoy = turnos[turnos['fecha_normalizada'] == hoy]
+turnos["fecha_normalizada"] = turnos["dia"].apply(lambda x: convertir_fecha(x))
+turno_hoy = turnos[turnos["fecha_normalizada"] == hoy]
 
 # Construir mensaje
 mensaje = f"📅 Hoy es {hoy.strftime('%d/%m/%Y')}\n"
@@ -55,8 +59,8 @@ mensaje = f"📅 Hoy es {hoy.strftime('%d/%m/%Y')}\n"
 if turno_hoy.empty:
     mensaje += "⚠️ No encontré tu turno para hoy.\nRevisá el archivo de turnos."
 else:
-    tipo_turno = turno_hoy.iloc[0]['turno'].upper()
-    if tipo_turno == 'F':
+    tipo_turno = turno_hoy.iloc[0]["turno"].upper()
+    if tipo_turno == "F":
         mensaje += "🎉 Hoy tenés franco.\n\n"
         mensaje += "📝 Tareas sugeridas para hoy:\n"
         for idx, row in tareas.iterrows():
@@ -72,10 +76,7 @@ else:
 # Enviar mensaje a Telegram
 try:
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = {
-        "chat_id": chat_id,
-        "text": mensaje
-    }
+    data = {"chat_id": chat_id, "text": mensaje}
     response = requests.post(url, data=data)
     if response.status_code == 200:
         print("\n✅ Mensaje enviado correctamente.")
